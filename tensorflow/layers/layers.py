@@ -1,3 +1,5 @@
+from ...config.config import ModelConfig
+
 import tensorflow as tf
 from tensorflow.keras.layers import Layer, Dense, GRU, Conv2D
 
@@ -25,3 +27,25 @@ class BahdanauAttention(Layer):
     context_vector = tf.reduce_sum(context_vector, axis=1)  # (batch_size, hidden_size)
 
     return context_vector, attention_weights
+
+
+class Encoder(Layer):
+    def __init__(
+        self, 
+        num_filters: int, 
+        config=ModelConfig, 
+        **kwargs):
+        super(Encoder, self).__init__(self, **kwargs)
+        self.config = config
+        
+    def call(self, x):
+        '''
+        x: data input (batch_size, n, T, D)
+        n: length of x
+        W: kernel size in time dimension
+        T: seqence length
+        D: variable dimension
+        T_c = T - w + 1
+        '''
+        x_reshaped = tf.reshape(x, shape=(-1, self.coffig.T, self.config.D, 1)) # batch_size * n, T, D ,1
+        
