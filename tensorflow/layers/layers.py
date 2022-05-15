@@ -49,3 +49,13 @@ class Encoder(Layer):
         '''
         x_reshaped = tf.reshape(x, shape=(-1, self.coffig.T, self.config.D, 1)) # batch_size * n, T, D ,1
         
+        # CNN layer
+        conv_output = Conv2D(
+            filters=self.config.num_filters, 
+            kernel_size=(self.config.W, x.shape[-1]),
+            padding=self.config.padding,
+            activation=self.config.activation
+        )(x_reshaped)  # T_c x 1 x d_c
+        conv_output = Dropout(rate=self.config.rate)(conv_output)
+        conv_output = tf.squeeze(conv_output, axis=2)   # T_c x d_c
+
