@@ -1,7 +1,7 @@
 from ...config.config import ModelConfig
 
 import tensorflow as tf
-from tensorflow.keras.layers import Layer, Dense, GRU, Conv2D
+from tensorflow.keras.layers import Layer, Dense, Conv2D, Dropout, GRU, Permute, Lambda
 
 
 class BahdanauAttention(Layer):
@@ -58,4 +58,16 @@ class Encoder(Layer):
         )(x_reshaped)  # T_c x 1 x d_c
         conv_output = Dropout(rate=self.config.rate)(conv_output)
         conv_output = tf.squeeze(conv_output, axis=2)   # T_c x d_c
+
+        # Attention Layer
+        # apply attention layer to convolutional layer's output matrix over the time dim
+        _attention_weights = tf.TensorArray(tf.float32, conv_output.shape[1])
+        for t in range(conv_output.shape[1]):
+            conv_output_t = Lambda(lambda x: x[:, t, :])(conv_output)
+            _, attention_weight = BahdanauAttention(units=self.units)(conv_output_t, conv_output)
+            
+            _attention_weights = _attention_weights.write(t, attention_weight)
+
+        _attention_weights = tf.reshape(_attention_weights.stack(), shape=(-1, *conv_output.shape[1:]))
+        attention_weights = tf.multiply(conv_output, _attention_weights)   # batch_size x T_c * d_c
 
