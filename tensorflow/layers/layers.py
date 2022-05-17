@@ -71,3 +71,7 @@ class Encoder(Layer):
         _attention_weights = tf.reshape(_attention_weights.stack(), shape=(-1, *conv_output.shape[1:]))
         attention_weights = tf.multiply(conv_output, _attention_weights)   # batch_size x T_c * d_c
 
+        # Recurrent Layer
+        recurrent_layer = GRU(units=self.config.units)(attention_weights)   # batch_size x d_c
+
+        return recurrent_layer
