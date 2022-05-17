@@ -32,11 +32,11 @@ class BahdanauAttention(Layer):
 class Encoder(Layer):
     def __init__(
         self, 
-        num_filters: int, 
         config=ModelConfig, 
         **kwargs):
-        super(Encoder, self).__init__(self, **kwargs)
-        self.config = config
+        super(Encoder, self).__init__(self)
+        self.config = ModelConfig
+        
         
     def call(self, x):
         '''
@@ -47,7 +47,7 @@ class Encoder(Layer):
         D: variable dimension
         T_c = T - w + 1
         '''
-        x_reshaped = tf.reshape(x, shape=(-1, self.coffig.T, self.config.D, 1)) # batch_size * n, T, D ,1
+        x_reshaped = tf.reshape(x, shape=(-1, self.config.T, self.config.D, 1)) # batch_size * n, T, D ,1
         
         # CNN layer
         conv_output = Conv2D(
@@ -64,7 +64,7 @@ class Encoder(Layer):
         _attention_weights = tf.TensorArray(tf.float32, conv_output.shape[1])
         for t in range(conv_output.shape[1]):
             conv_output_t = Lambda(lambda x: x[:, t, :])(conv_output)
-            _, attention_weight = BahdanauAttention(units=self.units)(conv_output_t, conv_output)
+            _, attention_weight = BahdanauAttention(units=self.config.units)(conv_output_t, conv_output)
             
             _attention_weights = _attention_weights.write(t, attention_weight)
 
