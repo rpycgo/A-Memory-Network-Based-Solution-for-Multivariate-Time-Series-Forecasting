@@ -50,3 +50,6 @@ class MTNet(Model):
         _y_t_l = tf.reshape(y, shape=(-1, tf.math.reduce_prod(y.shape[1:], axis=0).numpy()))
         y_t_l = Dense(units=x.shape[-1])(_y_t_l)    # batch_size, D
 
+        y_hat = y_t_d + y_t_l   # batch_size, D
+
+        return y_hat
