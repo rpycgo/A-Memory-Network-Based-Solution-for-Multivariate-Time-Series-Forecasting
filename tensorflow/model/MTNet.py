@@ -40,3 +40,7 @@ class MTNet(Model):
         # output memory representation
         o_i = tf.multiply(p_i, c_i) # batch_size, T_c, d
 
+        _y_t_d = tf.concat([o_i, u], axis=-1)   # batch_size, T_c, 2*d
+        _y_t_d = tf.reshape(_y_t_d, shape=(-1, tf.math.reduce_prod(_y_t_d.shape[1:], axis=0).numpy()))  # batch_size, T_c*2*d
+        y_t_d = Dense(units=x.shape[-1])(_y_t_d)    # batch_size, D
+
