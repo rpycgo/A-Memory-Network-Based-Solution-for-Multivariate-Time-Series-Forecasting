@@ -44,3 +44,9 @@ class MTNet(Model):
         _y_t_d = tf.reshape(_y_t_d, shape=(-1, tf.math.reduce_prod(_y_t_d.shape[1:], axis=0).numpy()))  # batch_size, T_c*2*d
         y_t_d = Dense(units=x.shape[-1])(_y_t_d)    # batch_size, D
 
+        # autoregrssive
+        assert self.config.W > 0
+        y = q[:, 0, -(self.config.W-1):, :]    # batch_size, W-1, D
+        _y_t_l = tf.reshape(y, shape=(-1, tf.math.reduce_prod(y.shape[1:], axis=0).numpy()))
+        y_t_l = Dense(units=x.shape[-1])(_y_t_l)    # batch_size, D
+
